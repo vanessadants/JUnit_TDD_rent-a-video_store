@@ -20,7 +20,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import br.ce.wcaquino.daos.LocacaoDAO;
 import br.ce.wcaquino.entidades.Filme;
@@ -32,10 +35,13 @@ import br.ce.wcaquino.utils.DataUtils;
 
 public class LocacaoServiceTest {
 
+	@InjectMocks
 	private LocacaoService service;
 	
+	@Mock
 	private SPCService spc;
 	
+	@Mock
 	private LocacaoDAO dao;
 	
 	@Rule
@@ -46,11 +52,7 @@ public class LocacaoServiceTest {
 	
 	@Before
 	public void setup(){
-		service = new LocacaoService();
-		dao = Mockito.mock(LocacaoDAO.class);
-		service.setLocacaoDAO(dao);
-		spc = Mockito.mock(SPCService.class);
-		service.setSPCService(spc);
+		MockitoAnnotations.initMocks(this);
 	}
 	
 	@Test(expected = FilmeSemEstoqueException.class)
@@ -169,13 +171,19 @@ public class LocacaoServiceTest {
 		Filme filme1 = new Filme("Filme 1", 1, 4.0);
 		Filme filme2 = new Filme("Filme 2", 0, 6.0);
 		
-		when(spc.possuiNegativacao(usuario)).thenReturn(true);
+		when(spc.possuiNegativacao(Mockito.any(Usuario.class))).thenReturn(true);
 		
-		exception.expect(LocadoraException.class);
-		exception.expectMessage("Usuário Negativado");
+		try{
+			//acao
+			service.alugarFilme(usuario, Arrays.asList(filme1,filme2));
+			//verificacao
+			Assert.fail();
+		}catch(LocadoraException e) {
+			Assert.assertThat(e.getMessage(),is("Usuário Negativado"));
+		}
 		
-		//acao
-		service.alugarFilme(usuario, Arrays.asList(filme1,filme2));
+		Mockito.verify(spc).possuiNegativacao(usuario);
+		
 	}
 	
 	
