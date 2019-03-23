@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import br.ce.wcaquino.daos.LocacaoDAO;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
@@ -16,9 +17,16 @@ import br.ce.wcaquino.utils.DataUtils;
 
 public class LocacaoService {
 	
+	private LocacaoDAO dao;
+	private SPCService spcService;
+	
 	public Locacao alugarFilme(Usuario usuario, List<Filme> filmes) throws FilmeSemEstoqueException, LocadoraException {
 		if(usuario == null) {
 			throw new LocadoraException("Usuario vazio");
+		}
+		
+		if(spcService.possuiNegativacao(usuario)) {
+			throw new LocadoraException("Usuário Negativado");
 		}
 		
 		if(filmes == null || filmes.isEmpty() || filmes.stream().anyMatch(Objects::isNull)) {
@@ -46,6 +54,9 @@ public class LocacaoService {
 			dataEntrega = adicionarDias(dataEntrega, 1);
 		}
 		locacao.setDataRetorno(dataEntrega);
+		
+		//Salvando a locacao...	
+		dao.salvar(locacao);
 		
 		return locacao;
 	}
@@ -78,5 +89,14 @@ public class LocacaoService {
 			}
 		return percentual;
 	}
+	
+	public void setLocacaoDAO(LocacaoDAO dao) {
+		this.dao = dao;
+	}
+	
+	public void setSPCService(SPCService spc) {
+		spcService = spc;
+	}
+	
 	
 }
