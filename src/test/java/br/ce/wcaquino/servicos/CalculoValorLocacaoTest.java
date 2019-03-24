@@ -84,7 +84,7 @@ public class CalculoValorLocacaoTest {
 	public void testeLocacaoMaiorQueLimite() throws Exception {
 		assumeFalse(filmes.size() < 7);
 		exception.expect(LocadoraException.class);
-		exception.expectMessage("O máximo de filmes permitidos para aluguel é 6.");
+		exception.expectMessage("O mÃ¡ximo de filmes permitidos para aluguel Ã© 6.");
 		
 		//cenario
 		Usuario usuario = new Usuario("Usuario 1");

@@ -24,7 +24,7 @@ public class LocacaoService {
 		}
 		
 		if(filmes.size() > 6) {
-			throw new LocadoraException("O máximo de filmes permitidos para aluguel é 6.");
+			throw new LocadoraException("O mÃ¡ximo de filmes permitidos para aluguel Ã© 6.");
 		}
 		
 		if(filmes.stream().anyMatch(f -> f.getEstoque() == 0)) {
