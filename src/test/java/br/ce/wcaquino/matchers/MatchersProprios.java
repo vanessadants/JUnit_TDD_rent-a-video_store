@@ -1,7 +1,9 @@
 package br.ce.wcaquino.matchers;
 
-import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.Date;
+
+import br.ce.wcaquino.utils.DataUtils;
 
 public class MatchersProprios {
 
@@ -13,12 +15,12 @@ public class MatchersProprios {
 		return new DiaSemanaMatcher(Calendar.MONDAY);
 	}
 	
-	public static DiaSemanaMatcher ehHoje(){
-		return new DiaSemanaMatcher(Calendar.SUNDAY + LocalDate.now().getDayOfWeek().getValue());
+	public static DataMatcher ehHoje(){
+		return new DataMatcher(new Date());
 	}
 	
-	public static DiaSemanaMatcher ehHojeComDiferencaDeDias(int qntDias){
-		return new DiaSemanaMatcher(Calendar.SUNDAY + LocalDate.now().getDayOfWeek().plus(qntDias).getValue());
+	public static DataMatcher ehHojeComDiferencaDeDias(int qntDias){
+		return new DataMatcher(DataUtils.adicionarDias(new Date(), qntDias));
 	}
 	
 }

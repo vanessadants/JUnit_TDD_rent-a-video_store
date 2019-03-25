@@ -20,6 +20,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -183,8 +184,32 @@ public class LocacaoServiceTest {
 		}
 		
 		Mockito.verify(spc).possuiNegativacao(usuario);
-		
 	}
 	
+	@Test
+	public void deveProrrogarUmaLocacao() throws FilmeSemEstoqueException, LocadoraException {
+		Assume.assumeFalse(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
+		
+		//cenario
+		Date hoje = new Date();
+		Locacao locacao = new Locacao();
+		locacao.setUsuario(new Usuario("Usuario 1"));
+		locacao.setFilmes(Arrays.asList(new Filme("Filme 1", 1, 5.0)));
+		locacao.setDataLocacao(hoje);
+		locacao.setDataRetorno(DataUtils.adicionarDias(hoje, 1));
+		locacao.setValor(5.0);
+		
+		//acao
+		service.prorrogarLocacao(locacao, 3);
+		
+		//verificacao
+		ArgumentCaptor<Locacao> argCapt = ArgumentCaptor.forClass(Locacao.class);
+		Mockito.verify(dao).salvar(argCapt.capture());
+		Locacao locacaoRetornada = argCapt.getValue();
+		
+		error.checkThat(locacaoRetornada.getValor(), is(15.0));
+		error.checkThat(locacaoRetornada.getDataLocacao(), ehHoje());
+		error.checkThat(locacaoRetornada.getDataRetorno(), ehHojeComDiferencaDeDias(3));
+	}
 	
 }
