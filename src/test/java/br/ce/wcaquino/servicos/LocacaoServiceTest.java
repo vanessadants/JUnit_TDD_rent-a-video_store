@@ -30,6 +30,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.powermock.reflect.Whitebox;
 
 import br.ce.wcaquino.daos.LocacaoDAO;
 import br.ce.wcaquino.entidades.Filme;
@@ -62,6 +63,7 @@ public class LocacaoServiceTest {
 	@Before
 	public void setup(){
 		MockitoAnnotations.initMocks(this);
+		service = PowerMockito.spy(service);
 	}
 	
 	@Test(expected = FilmeSemEstoqueException.class)
@@ -257,5 +259,34 @@ public class LocacaoServiceTest {
 		error.checkThat(locacaoRetornada.getDataLocacao(), ehHoje());
 		error.checkThat(locacaoRetornada.getDataRetorno(), ehHojeComDiferencaDeDias(3));
 	}
+	
+	@Test
+	public void deveAlugarFilme_SemCalcularValor() throws Exception{
+		//cenario
+		Usuario usuario = new Usuario("Usuario 1");
+		List<Filme> filmes = Arrays.asList(new Filme("Filme 1", 1, 5.0));
+		
+		PowerMockito.doReturn(1.0).when(service, "getValorTotalAluguel", filmes);
+		
+		//acao
+		Locacao locacao = service.alugarFilme(usuario, filmes);
+		
+		//verificacao
+		Assert.assertThat(locacao.getValor(), is(1.0));
+		PowerMockito.verifyPrivate(service).invoke("getValorTotalAluguel", filmes);
+	}
+	
+	@Test
+	public void deveCalcularValorLocacao() throws Exception{
+		//cenario
+		List<Filme> filmes = Arrays.asList(new Filme("Filme 1", 1, 5.0));
+		
+		//acao
+		Double valor = (Double) Whitebox.invokeMethod(service, "getValorTotalAluguel", filmes);
+		
+		//verificacao
+		Assert.assertThat(valor, is(5.0));
+	}
+	
 	
 }
